@@ -106,10 +106,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params An array of query replacement parameters.  Each row in
      *               this array is one set of batch replacement values.
      * @return The number of rows updated per statement.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    public int[] batch(Connection conn, String sql, Object[][] params) throws SQLException {
+    public int[] batch(Connection conn, String sql, Object[][] params) {
         return this.batch(conn, false, sql, params);
     }
 
@@ -123,10 +123,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params An array of query replacement parameters.  Each row in
      *               this array is one set of batch replacement values.
      * @return The number of rows updated per statement.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    public int[] batch(String sql, Object[][] params) throws SQLException {
+    public int[] batch(String sql, Object[][] params) {
         Connection conn = this.prepareConnection();
 
         return this.batch(conn, true, sql, params);
@@ -141,25 +141,25 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params    An array of query replacement parameters.  Each row in
      *                  this array is one set of batch replacement values.
      * @return The number of rows updated in the batch.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      */
-    private int[] batch(Connection conn, boolean closeConn, String sql, Object[][] params) throws SQLException {
+    private int[] batch(Connection conn, boolean closeConn, String sql, Object[][] params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         if (params == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null parameters. If parameters aren't need, pass an empty array.");
+            throw new SQLRuntimeException("Null parameters. If parameters aren't need, pass an empty array.");
         }
 
         PreparedStatement stmt = null;
@@ -195,12 +195,12 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param param The replacement parameter.
      * @param rsh   The handler that converts the results into an object.
      * @return The object returned by the handler.
-     * @throws SQLException if a database access error occurs
-     * @deprecated Use {@link #query(Connection, String, ResultSetHandler, Object...)}
+     * @throws SQLRuntimeException if a database access error occurs
+     * @deprecated Use {@link #select(Connection, String, ResultSetHandler, Object...)}
      */
     @Deprecated
-    public <T> T query(Connection conn, String sql, Object param, ResultSetHandler<T> rsh) throws SQLException {
-        return this.<T>query(conn, false, sql, rsh, new Object[]{param});
+    public <T> T select(Connection conn, String sql, Object param, ResultSetHandler<T> rsh) {
+        return this.<T>select(conn, false, sql, rsh, new Object[]{param});
     }
 
     /**
@@ -213,12 +213,12 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params The replacement parameters.
      * @param rsh    The handler that converts the results into an object.
      * @return The object returned by the handler.
-     * @throws SQLException if a database access error occurs
-     * @deprecated Use {@link #query(Connection, String, ResultSetHandler, Object...)} instead
+     * @throws SQLRuntimeException if a database access error occurs
+     * @deprecated Use {@link #select(Connection, String, ResultSetHandler, Object...)} instead
      */
     @Deprecated
-    public <T> T query(Connection conn, String sql, Object[] params, ResultSetHandler<T> rsh) throws SQLException {
-        return this.<T>query(conn, false, sql, rsh, params);
+    public <T> T select(Connection conn, String sql, Object[] params, ResultSetHandler<T> rsh) {
+        return this.<T>select(conn, false, sql, rsh, params);
     }
 
     /**
@@ -231,10 +231,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh    The handler that converts the results into an object.
      * @param params The replacement parameters.
      * @return The object returned by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
-        return this.<T>query(conn, false, sql, rsh, params);
+    public <T> T select(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) {
+        return this.<T>select(conn, false, sql, rsh, params);
     }
 
     /**
@@ -246,10 +246,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql  The query to execute.
      * @param rsh  The handler that converts the results into an object.
      * @return The object returned by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh) throws SQLException {
-        return this.<T>query(conn, false, sql, rsh, (Object[]) null);
+    public <T> T select(Connection conn, String sql, ResultSetHandler<T> rsh) {
+        return this.<T>select(conn, false, sql, rsh, (Object[]) null);
     }
 
     /**
@@ -263,14 +263,14 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh   The handler used to create the result object from
      *              the <code>ResultSet</code>.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
-     * @deprecated Use {@link #query(String, ResultSetHandler, Object...)}
+     * @throws SQLRuntimeException if a database access error occurs
+     * @deprecated Use {@link #select(String, ResultSetHandler, Object...)}
      */
     @Deprecated
-    public <T> T query(String sql, Object param, ResultSetHandler<T> rsh) throws SQLException {
+    public <T> T select(String sql, Object param, ResultSetHandler<T> rsh) {
         Connection conn = this.prepareConnection();
 
-        return this.<T>query(conn, true, sql, rsh, new Object[]{param});
+        return this.<T>select(conn, true, sql, rsh, new Object[]{param});
     }
 
     /**
@@ -285,14 +285,14 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh    The handler used to create the result object from
      *               the <code>ResultSet</code>.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
-     * @deprecated Use {@link #query(String, ResultSetHandler, Object...)}
+     * @throws SQLRuntimeException if a database access error occurs
+     * @deprecated Use {@link #select(String, ResultSetHandler, Object...)}
      */
     @Deprecated
-    public <T> T query(String sql, Object[] params, ResultSetHandler<T> rsh) throws SQLException {
+    public <T> T select(String sql, Object[] params, ResultSetHandler<T> rsh) {
         Connection conn = this.prepareConnection();
 
-        return this.<T>query(conn, true, sql, rsh, params);
+        return this.<T>select(conn, true, sql, rsh, params);
     }
 
     /**
@@ -307,12 +307,12 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params Initialize the PreparedStatement's IN parameters with
      *               this array.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> T query(String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    public <T> T select(String sql, ResultSetHandler<T> rsh, Object... params) {
         Connection conn = this.prepareConnection();
 
-        return this.<T>query(conn, true, sql, rsh, params);
+        return this.<T>select(conn, true, sql, rsh, params);
     }
 
     /**
@@ -325,12 +325,12 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh The handler used to create the result object from
      *            the <code>ResultSet</code>.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> T query(String sql, ResultSetHandler<T> rsh) throws SQLException {
+    public <T> T select(String sql, ResultSetHandler<T> rsh) {
         Connection conn = this.prepareConnection();
 
-        return this.<T>query(conn, true, sql, rsh, (Object[]) null);
+        return this.<T>select(conn, true, sql, rsh, (Object[]) null);
     }
 
     /**
@@ -342,26 +342,25 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params    An array of query replacement parameters.  Each row in
      *                  this array is one set of batch replacement values.
      * @return The results of the query.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      */
-    private <T> T query(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params)
-            throws SQLException {
+    private <T> T select(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         if (rsh == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null ResultSetHandler");
+            throw new SQLRuntimeException("Null ResultSetHandler");
         }
 
         PreparedStatement stmt = null;
@@ -398,9 +397,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param conn The connection to use to run the query.
      * @param sql  The SQL to execute.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(Connection conn, String sql) throws SQLException {
+    public int update(Connection conn, String sql){
         return this.update(conn, false, sql, (Object[]) null);
     }
 
@@ -412,9 +411,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql   The SQL to execute.
      * @param param The replacement parameter.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(Connection conn, String sql, Object param) throws SQLException {
+    public int update(Connection conn, String sql, Object param) {
         return this.update(conn, false, sql, new Object[]{param});
     }
 
@@ -425,9 +424,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql    The SQL to execute.
      * @param params The query replacement parameters.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(Connection conn, String sql, Object... params) throws SQLException {
+    public int update(Connection conn, String sql, Object... params) {
         return update(conn, false, sql, params);
     }
 
@@ -440,9 +439,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *
      * @param sql The SQL statement to execute.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(String sql) throws SQLException {
+    public int update(String sql) {
         Connection conn = this.prepareConnection();
 
         return this.update(conn, true, sql, (Object[]) null);
@@ -458,9 +457,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql   The SQL statement to execute.
      * @param param The replacement parameter.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(String sql, Object param) throws SQLException {
+    public int update(String sql, Object param) {
         Connection conn = this.prepareConnection();
 
         return this.update(conn, true, sql, new Object[]{param});
@@ -476,9 +475,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params Initializes the PreparedStatement's IN (i.e. '?')
      *               parameters.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int update(String sql, Object... params) throws SQLException {
+    public int update(String sql, Object... params) {
         Connection conn = this.prepareConnection();
 
         return this.update(conn, true, sql, params);
@@ -493,18 +492,18 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params    An array of update replacement parameters.  Each row in
      *                  this array is one set of update replacement values.
      * @return The number of rows updated.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      */
-    private int update(Connection conn, boolean closeConn, String sql, Object... params) throws SQLException {
+    private int update(Connection conn, boolean closeConn, String sql, Object... params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         PreparedStatement stmt = null;
@@ -538,10 +537,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh The handler used to create the result object from
      *            the <code>ResultSet</code> of auto-generated keys.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insert(String sql, ResultSetHandler<T> rsh) throws SQLException {
+    public <T> T insert(String sql, ResultSetHandler<T> rsh) {
         return insert(this.prepareConnection(), true, sql, rsh, (Object[]) null);
     }
 
@@ -557,10 +556,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *               the <code>ResultSet</code> of auto-generated keys.
      * @param params Initializes the PreparedStatement's IN (i.e. '?')
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insert(String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    public <T> T insert(String sql, ResultSetHandler<T> rsh, Object... params) {
         return insert(this.prepareConnection(), true, sql, rsh, params);
     }
 
@@ -573,10 +572,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh  The handler used to create the result object from
      *             the <code>ResultSet</code> of auto-generated keys.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insert(Connection conn, String sql, ResultSetHandler<T> rsh) throws SQLException {
+    public <T> T insert(Connection conn, String sql, ResultSetHandler<T> rsh) {
         return insert(conn, false, sql, rsh, (Object[]) null);
     }
 
@@ -590,10 +589,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *               the <code>ResultSet</code> of auto-generated keys.
      * @param params The query replacement parameters.
      * @return An object generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insert(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    public <T> T insert(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) {
         return insert(conn, false, sql, rsh, params);
     }
 
@@ -607,27 +606,26 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *                  the <code>ResultSet</code> of auto-generated keys.
      * @param params    The query replacement parameters.
      * @return An object generated by the handler.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      * @since 1.6
      */
-    private <T> T insert(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params)
-            throws SQLException {
+    private <T> T insert(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         if (rsh == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null ResultSetHandler");
+            throw new SQLRuntimeException("Null ResultSetHandler");
         }
 
         PreparedStatement stmt = null;
@@ -663,10 +661,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *               the <code>ResultSet</code> of auto-generated keys.
      * @param params Initializes the PreparedStatement's IN (i.e. '?')
      * @return The result generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insertBatch(String sql, ResultSetHandler<T> rsh, Object[][] params) throws SQLException {
+    public <T> T insertBatch(String sql, ResultSetHandler<T> rsh, Object[][] params) {
         return insertBatch(this.prepareConnection(), true, sql, rsh, params);
     }
 
@@ -680,10 +678,10 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *               the <code>ResultSet</code> of auto-generated keys.
      * @param params The query replacement parameters.
      * @return The result generated by the handler.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since 1.6
      */
-    public <T> T insertBatch(Connection conn, String sql, ResultSetHandler<T> rsh, Object[][] params) throws SQLException {
+    public <T> T insertBatch(Connection conn, String sql, ResultSetHandler<T> rsh, Object[][] params) {
         return insertBatch(conn, false, sql, rsh, params);
     }
 
@@ -697,27 +695,26 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *                  the <code>ResultSet</code> of auto-generated keys.
      * @param params    The query replacement parameters.
      * @return The result generated by the handler.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      * @since 1.6
      */
-    private <T> T insertBatch(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object[][] params)
-            throws SQLException {
+    private <T> T insertBatch(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object[][] params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         if (params == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null parameters. If parameters aren't need, pass an empty array.");
+            throw new SQLRuntimeException("Null parameters. If parameters aren't need, pass an empty array.");
         }
 
         PreparedStatement stmt = null;
@@ -762,9 +759,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql    The SQL to execute.
      * @param params The query replacement parameters.
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int execute(Connection conn, String sql, Object... params) throws SQLException {
+    public int execute(Connection conn, String sql, Object... params) {
         return this.execute(conn, false, sql, params);
     }
 
@@ -788,9 +785,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param sql    The SQL statement to execute.
      * @param params Initializes the CallableStatement's parameters (i.e. '?').
      * @return The number of rows updated.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public int execute(String sql, Object... params) throws SQLException {
+    public int execute(String sql, Object... params) {
         Connection conn = this.prepareConnection();
 
         return this.execute(conn, true, sql, params);
@@ -805,7 +802,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * Use this method when: a) running SQL statements that return multiple
      * result sets; b) invoking a stored procedure that return result
      * sets and OUT parameters.  Otherwise you may wish to use
-     * {@link #query(Connection, String, idealist.dao.ResultSetHandler, Object...) }
+     * {@link #select(Connection, String, idealist.dao.ResultSetHandler, Object...) }
      * (if there are no OUT parameters) or
      * {@link #execute(Connection, String, Object...) }
      * (if there are no result sets).
@@ -816,9 +813,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh    The result set handler
      * @param params The query replacement parameters.
      * @return A list of objects generated by the handler
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> List<T> execute(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    public <T> List<T> execute(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) {
         return this.execute(conn, false, sql, rsh, params);
     }
 
@@ -831,7 +828,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * Use this method when: a) running SQL statements that return multiple
      * result sets; b) invoking a stored procedure that return result
      * sets and OUT parameters.  Otherwise you may wish to use
-     * {@link #query(String, idealist.dao.ResultSetHandler, Object...) }
+     * {@link #select(String, idealist.dao.ResultSetHandler, Object...) }
      * (if there are no OUT parameters) or
      * {@link #execute(String, Object...) }
      * (if there are no result sets).
@@ -841,9 +838,9 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param rsh    The result set handler
      * @param params The query replacement parameters.
      * @return A list of objects generated by the handler
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public <T> List<T> execute(String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    public <T> List<T> execute(String sql, ResultSetHandler<T> rsh, Object... params) {
         Connection conn = this.prepareConnection();
 
         return this.execute(conn, true, sql, rsh, params);
@@ -859,18 +856,18 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params    An array of update replacement parameters.  Each row in
      *                  this array is one set of update replacement values.
      * @return The number of rows updated.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      */
-    private int execute(Connection conn, boolean closeConn, String sql, Object... params) throws SQLException {
+    private int execute(Connection conn, boolean closeConn, String sql, Object... params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         CallableStatement stmt = null;
@@ -907,25 +904,25 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      * @param params    An array of update replacement parameters.  Each row in
      *                  this array is one set of update replacement values.
      * @return List of all objects generated by the ResultSetHandler for all result sets handled.
-     * @throws SQLException If there are database or parameter errors.
+     * @throws SQLRuntimeException If there are database or parameter errors.
      */
-    private <T> List<T> execute(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
+    private <T> List<T> execute(Connection conn, boolean closeConn, String sql, ResultSetHandler<T> rsh, Object... params) {
         if (conn == null) {
-            throw new SQLException("Null connection");
+            throw new SQLRuntimeException("Null connection");
         }
 
         if (sql == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null SQL statement");
+            throw new SQLRuntimeException("Null SQL statement");
         }
 
         if (rsh == null) {
             if (closeConn) {
                 close(conn);
             }
-            throw new SQLException("Null ResultSetHandler");
+            throw new SQLRuntimeException("Null ResultSetHandler");
         }
 
         CallableStatement stmt = null;
@@ -970,16 +967,20 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
      *
      * @param stmt   the statement from which to retrieve OUT parameter values
      * @param params the parameter array for the statement invocation
-     * @throws SQLException when the value could not be retrieved from the
+     * @throws SQLRuntimeException when the value could not be retrieved from the
      *                      statement.
      */
-    private void retrieveOutParameters(CallableStatement stmt, Object[] params) throws SQLException {
-        if (params != null) {
-            for (int i = 0; i < params.length; i++) {
-                if (params[i] instanceof OutParameter) {
-                    ((OutParameter) params[i]).setValue(stmt, i + 1);
+    private void retrieveOutParameters(CallableStatement stmt, Object[] params) {
+        try {
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    if (params[i] instanceof OutParameter) {
+                        ((OutParameter) params[i]).setValue(stmt, i + 1);
+                    }
                 }
             }
+        } catch (SQLException throwables) {
+            throw new SQLRuntimeException(throwables);
         }
     }
 }

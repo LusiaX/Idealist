@@ -15,7 +15,7 @@ import static java.sql.DriverManager.registerDriver;
  * <p>
  * Created by Charles Cui<lfylccxm@hotmail.com> on 2021-05-19 01:00:21
  */
-public final class DbUtils {
+public final class JdbcUtils {
 
     /**
      * Default constructor.
@@ -25,7 +25,7 @@ public final class DbUtils {
      *
      * @since 1.4
      */
-    public DbUtils() {
+    public JdbcUtils() {
         // do nothing
     }
 
@@ -33,11 +33,15 @@ public final class DbUtils {
      * Close a <code>Connection</code>, avoid closing if null.
      *
      * @param conn Connection to close.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public static void close(Connection conn) throws SQLException {
-        if (conn != null) {
-            conn.close();
+    public static void close(Connection conn) {
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
@@ -45,11 +49,15 @@ public final class DbUtils {
      * Close a <code>ResultSet</code>, avoid closing if null.
      *
      * @param rs ResultSet to close.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public static void close(ResultSet rs) throws SQLException {
-        if (rs != null) {
-            rs.close();
+    public static void close(ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
@@ -57,24 +65,28 @@ public final class DbUtils {
      * Close a <code>Statement</code>, avoid closing if null.
      *
      * @param stmt Statement to close.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public static void close(Statement stmt) throws SQLException {
-        if (stmt != null) {
-            stmt.close();
+    public static void close(Statement stmt) {
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
     /**
      * Close a <code>Connection</code>, avoid closing if null and hide
-     * any SQLExceptions that occur.
+     * any SQLRuntimeExceptions that occur.
      *
      * @param conn Connection to close.
      */
     public static void closeQuietly(Connection conn) {
         try {
             close(conn);
-        } catch (SQLException e) { // NOPMD
+        } catch (Throwable e) { // NOPMD
             // quiet
         }
     }
@@ -82,14 +94,13 @@ public final class DbUtils {
     /**
      * Close a <code>Connection</code>, <code>Statement</code> and
      * <code>ResultSet</code>.  Avoid closing if null and hide any
-     * SQLExceptions that occur.
+     * SQLRuntimeExceptions that occur.
      *
      * @param conn Connection to close.
      * @param stmt Statement to close.
      * @param rs   ResultSet to close.
      */
-    public static void closeQuietly(Connection conn, Statement stmt,
-                                    ResultSet rs) {
+    public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {
 
         try {
             closeQuietly(rs);
@@ -105,28 +116,28 @@ public final class DbUtils {
 
     /**
      * Close a <code>ResultSet</code>, avoid closing if null and hide any
-     * SQLExceptions that occur.
+     * SQLRuntimeExceptions that occur.
      *
      * @param rs ResultSet to close.
      */
     public static void closeQuietly(ResultSet rs) {
         try {
             close(rs);
-        } catch (SQLException e) { // NOPMD
+        } catch (Throwable e) { // NOPMD
             // quiet
         }
     }
 
     /**
      * Close a <code>Statement</code>, avoid closing if null and hide
-     * any SQLExceptions that occur.
+     * any SQLRuntimeExceptions that occur.
      *
      * @param stmt Statement to close.
      */
     public static void closeQuietly(Statement stmt) {
         try {
             close(stmt);
-        } catch (SQLException e) { // NOPMD
+        } catch (SQLRuntimeException e) { // NOPMD
             // quiet
         }
     }
@@ -135,28 +146,30 @@ public final class DbUtils {
      * Commits a <code>Connection</code> then closes it, avoid closing if null.
      *
      * @param conn Connection to close.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public static void commitAndClose(Connection conn) throws SQLException {
-        if (conn != null) {
-            try {
-                conn.commit();
-            } finally {
-                conn.close();
+    public static void commitAndClose(Connection conn) {
+        try {
+            if (conn != null) {
+                try (conn) {
+                    conn.commit();
+                }
             }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
     /**
      * Commits a <code>Connection</code> then closes it, avoid closing if null
-     * and hide any SQLExceptions that occur.
+     * and hide any SQLRuntimeExceptions that occur.
      *
      * @param conn Connection to close.
      */
     public static void commitAndCloseQuietly(Connection conn) {
         try {
             commitAndClose(conn);
-        } catch (SQLException e) { // NOPMD
+        } catch (SQLRuntimeException e) { // NOPMD
             // quiet
         }
     }
@@ -169,7 +182,7 @@ public final class DbUtils {
      * @return boolean <code>true</code> if the driver was found, otherwise <code>false</code>
      */
     public static boolean loadDriver(String driverClassName) {
-        return loadDriver(DbUtils.class.getClassLoader(), driverClassName);
+        return loadDriver(JdbcUtils.class.getClassLoader(), driverClassName);
     }
 
     /**
@@ -207,27 +220,25 @@ public final class DbUtils {
             }
 
             return true;
-        } catch (RuntimeException e) {
-            return false;
         } catch (Exception e) {
             return false;
         }
     }
 
     /**
-     * Print the stack trace for a SQLException to STDERR.
+     * Print the stack trace for a SQLRuntimeException to STDERR.
      *
-     * @param e SQLException to print stack trace of
+     * @param e SQLRuntimeException to print stack trace of
      */
     public static void printStackTrace(SQLException e) {
         printStackTrace(e, new PrintWriter(System.err));
     }
 
     /**
-     * Print the stack trace for a SQLException to a
+     * Print the stack trace for a SQLRuntimeException to a
      * specified PrintWriter.
      *
-     * @param e  SQLException to print stack trace of
+     * @param e  SQLRuntimeException to print stack trace of
      * @param pw PrintWriter to print to
      */
     public static void printStackTrace(SQLException e, PrintWriter pw) {
@@ -271,11 +282,15 @@ public final class DbUtils {
      * Rollback any changes made on the given connection.
      *
      * @param conn Connection to rollback.  A null value is legal.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public static void rollback(Connection conn) throws SQLException {
-        if (conn != null) {
-            conn.rollback();
+    public static void rollback(Connection conn) {
+        try {
+            if (conn != null) {
+                conn.rollback();
+            }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
@@ -284,22 +299,24 @@ public final class DbUtils {
      * avoid closing if null.
      *
      * @param conn Connection to rollback.  A null value is legal.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    public static void rollbackAndClose(Connection conn) throws SQLException {
-        if (conn != null) {
-            try {
-                conn.rollback();
-            } finally {
-                conn.close();
+    public static void rollbackAndClose(Connection conn) {
+        try {
+            if (conn != null) {
+                try (conn) {
+                    conn.rollback();
+                }
             }
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
         }
     }
 
     /**
      * Performs a rollback on the <code>Connection</code> then closes it,
-     * avoid closing if null and hide any SQLExceptions that occur.
+     * avoid closing if null and hide any SQLRuntimeExceptions that occur.
      *
      * @param conn Connection to rollback.  A null value is legal.
      * @since DbUtils 1.1
@@ -307,7 +324,7 @@ public final class DbUtils {
     public static void rollbackAndCloseQuietly(Connection conn) {
         try {
             rollbackAndClose(conn);
-        } catch (SQLException e) { // NOPMD
+        } catch (SQLRuntimeException e) { // NOPMD
             // quiet
         }
     }
@@ -338,16 +355,24 @@ public final class DbUtils {
          * {@inheritDoc}
          */
         @Override
-        public boolean acceptsURL(String url) throws SQLException {
-            return adapted.acceptsURL(url);
+        public boolean acceptsURL(String url) {
+            try {
+                return adapted.acceptsURL(url);
+            } catch (SQLException e) {
+                throw new SQLRuntimeException(e);
+            }
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public Connection connect(String url, Properties info) throws SQLException {
-            return adapted.connect(url, info);
+        public Connection connect(String url, Properties info) {
+            try {
+                return adapted.connect(url, info);
+            } catch (SQLException e) {
+                throw new SQLRuntimeException(e);
+            }
         }
 
         /**
@@ -370,8 +395,12 @@ public final class DbUtils {
          * {@inheritDoc}
          */
         @Override
-        public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-            return adapted.getPropertyInfo(url, info);
+        public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
+            try {
+                return adapted.getPropertyInfo(url, info);
+            } catch (SQLException e) {
+                throw new SQLRuntimeException(e);
+            }
         }
 
         /**
@@ -390,13 +419,7 @@ public final class DbUtils {
                 try {
                     Method method = adapted.getClass().getMethod("getParentLogger", new Class[0]);
                     return (Logger) method.invoke(adapted, new Object[0]);
-                } catch (NoSuchMethodException e) {
-                    parentLoggerSupported = false;
-                    throw new SQLFeatureNotSupportedException(e);
-                } catch (IllegalAccessException e) {
-                    parentLoggerSupported = false;
-                    throw new SQLFeatureNotSupportedException(e);
-                } catch (InvocationTargetException e) {
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     parentLoggerSupported = false;
                     throw new SQLFeatureNotSupportedException(e);
                 }

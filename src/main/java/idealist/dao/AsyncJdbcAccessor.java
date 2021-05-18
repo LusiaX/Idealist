@@ -152,7 +152,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public T call() throws Exception {
-                return jdbcAccessor.query(conn, sql, rsh, params);
+                return jdbcAccessor.select(conn, sql, rsh, params);
             }
 
         });
@@ -174,7 +174,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public T call() throws Exception {
-                return jdbcAccessor.query(conn, sql, rsh);
+                return jdbcAccessor.select(conn, sql, rsh);
             }
 
         });
@@ -199,7 +199,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public T call() throws Exception {
-                return jdbcAccessor.query(sql, rsh, params);
+                return jdbcAccessor.select(sql, rsh, params);
             }
 
         });
@@ -222,7 +222,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public T call() throws Exception {
-                return jdbcAccessor.query(sql, rsh);
+                return jdbcAccessor.select(sql, rsh);
             }
 
         });

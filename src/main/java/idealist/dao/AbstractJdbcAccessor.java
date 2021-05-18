@@ -267,16 +267,20 @@ public abstract class AbstractJdbcAccessor {
      * needed. This implementation simply calls <code>ds.getConnection()</code>.
      *
      * @return An initialized <code>Connection</code>.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    protected Connection prepareConnection() throws SQLException {
+    protected Connection prepareConnection() {
         if (this.getDataSource() == null) {
-            throw new SQLException(
+            throw new SQLRuntimeException(
                     "QueryRunner requires a DataSource to be "
                             + "invoked in this way, or a Connection should be passed in");
         }
-        return this.getDataSource().getConnection();
+        try {
+            return this.getDataSource().getConnection();
+        } catch (SQLException throwables) {
+            throw new SQLRuntimeException(throwables);
+        }
     }
 
     /**
@@ -286,70 +290,73 @@ public abstract class AbstractJdbcAccessor {
      * @param stmt   PreparedStatement to fill
      * @param params Query replacement parameters; <code>null</code> is a valid
      *               value to pass in.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    public void fillStatement(PreparedStatement stmt, Object... params)
-            throws SQLException {
+    public void fillStatement(PreparedStatement stmt, Object... params) {
 
-        // check the parameter count, if we can
-        ParameterMetaData pmd = null;
-        if (!pmdKnownBroken) {
-            try {
-                pmd = stmt.getParameterMetaData();
-                if (pmd == null) { // can be returned by implementations that don't support the method
-                    pmdKnownBroken = true;
-                } else {
-                    int stmtCount = pmd.getParameterCount();
-                    int paramsCount = params == null ? 0 : params.length;
-
-                    if (stmtCount != paramsCount) {
-                        throw new SQLException("Wrong number of parameters: expected "
-                                + stmtCount + ", was given " + paramsCount);
-                    }
-                }
-            } catch (SQLFeatureNotSupportedException ex) {
-                pmdKnownBroken = true;
-            }
-            // TODO see DBUTILS-117: would it make sense to catch any other SQLEx types here?
-        }
-
-        // nothing to do here
-        if (params == null) {
-            return;
-        }
-
-        CallableStatement call = null;
-        if (stmt instanceof CallableStatement) {
-            call = (CallableStatement) stmt;
-        }
-
-        for (int i = 0; i < params.length; i++) {
-            if (params[i] != null) {
-                if (call != null && params[i] instanceof OutParameter) {
-                    ((OutParameter) params[i]).register(call, i + 1);
-                } else {
-                    stmt.setObject(i + 1, params[i]);
-                }
-            } else {
-                // VARCHAR works with many drivers regardless
-                // of the actual column type. Oddly, NULL and
-                // OTHER don't work with Oracle's drivers.
-                int sqlType = Types.VARCHAR;
-                if (!pmdKnownBroken) {
-                    // TODO see DBUTILS-117: does it make sense to catch SQLEx here?
-                    try {
-                        /*
-                         * It's not possible for pmdKnownBroken to change from
-                         * true to false, (once true, always true) so pmd cannot
-                         * be null here.
-                         */
-                        sqlType = pmd.getParameterType(i + 1);
-                    } catch (SQLException e) {
+        try {
+            // check the parameter count, if we can
+            ParameterMetaData pmd = null;
+            if (!pmdKnownBroken) {
+                try {
+                    pmd = stmt.getParameterMetaData();
+                    if (pmd == null) { // can be returned by implementations that don't support the method
                         pmdKnownBroken = true;
+                    } else {
+                        int stmtCount = pmd.getParameterCount();
+                        int paramsCount = params == null ? 0 : params.length;
+
+                        if (stmtCount != paramsCount) {
+                            throw new SQLRuntimeException("Wrong number of parameters: expected "
+                                    + stmtCount + ", was given " + paramsCount);
+                        }
                     }
+                } catch (SQLFeatureNotSupportedException ex) {
+                    pmdKnownBroken = true;
                 }
-                stmt.setNull(i + 1, sqlType);
+                // TODO see DBUTILS-117: would it make sense to catch any other SQLEx types here?
             }
+
+            // nothing to do here
+            if (params == null) {
+                return;
+            }
+
+            CallableStatement call = null;
+            if (stmt instanceof CallableStatement) {
+                call = (CallableStatement) stmt;
+            }
+
+            for (int i = 0; i < params.length; i++) {
+                if (params[i] != null) {
+                    if (call != null && params[i] instanceof OutParameter) {
+                        ((OutParameter) params[i]).register(call, i + 1);
+                    } else {
+                        stmt.setObject(i + 1, params[i]);
+                    }
+                } else {
+                    // VARCHAR works with many drivers regardless
+                    // of the actual column type. Oddly, NULL and
+                    // OTHER don't work with Oracle's drivers.
+                    int sqlType = Types.VARCHAR;
+                    if (!pmdKnownBroken) {
+                        // TODO see DBUTILS-117: does it make sense to catch SQLEx here?
+                        try {
+                            /*
+                             * It's not possible for pmdKnownBroken to change from
+                             * true to false, (once true, always true) so pmd cannot
+                             * be null here.
+                             */
+                            sqlType = pmd.getParameterType(i + 1);
+                        } catch (SQLException e) {
+                            pmdKnownBroken = true;
+                        }
+                    }
+                    stmt.setNull(i + 1, sqlType);
+                }
+            }
+        } catch (SQLException throwables) {
+            throw new SQLRuntimeException(throwables);
         }
     }
 
@@ -444,10 +451,9 @@ public abstract class AbstractJdbcAccessor {
      * @param sql    The query that was executing when the exception happened.
      * @param params The query replacement parameters; <code>null</code> is a valid
      *               value to pass in.
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      */
-    protected void rethrow(SQLException cause, String sql, Object... params)
-            throws SQLException {
+    protected void rethrow(SQLException cause, String sql, Object... params) {
 
         String causeMessage = cause.getMessage();
         if (causeMessage == null) {
@@ -469,7 +475,7 @@ public abstract class AbstractJdbcAccessor {
                 cause.getErrorCode());
         e.setNextException(cause);
 
-        throw e;
+        throw new SQLRuntimeException(e);
     }
 
     /**
@@ -504,11 +510,11 @@ public abstract class AbstractJdbcAccessor {
      * can override to provide special handling like logging.
      *
      * @param conn Connection to close
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    protected void close(Connection conn) throws SQLException {
-        DbUtils.close(conn);
+    protected void close(Connection conn) {
+        JdbcUtils.close(conn);
     }
 
     /**
@@ -517,11 +523,11 @@ public abstract class AbstractJdbcAccessor {
      * can override to provide special handling like logging.
      *
      * @param stmt Statement to close
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    protected void close(Statement stmt) throws SQLException {
-        DbUtils.close(stmt);
+    protected void close(Statement stmt) {
+        JdbcUtils.close(stmt);
     }
 
     /**
@@ -530,11 +536,11 @@ public abstract class AbstractJdbcAccessor {
      * can override to provide special handling like logging.
      *
      * @param rs ResultSet to close
-     * @throws SQLException if a database access error occurs
+     * @throws SQLRuntimeException if a database access error occurs
      * @since DbUtils 1.1
      */
-    protected void close(ResultSet rs) throws SQLException {
-        DbUtils.close(rs);
+    protected void close(ResultSet rs) {
+        JdbcUtils.close(rs);
     }
 
 }
