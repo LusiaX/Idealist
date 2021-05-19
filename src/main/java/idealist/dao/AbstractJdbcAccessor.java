@@ -10,9 +10,9 @@ import java.sql.*;
 import java.util.Arrays;
 
 /**
- * The base class for QueryRunner &amp; AsyncQueryRunner. This class is thread safe.
+ * The base class for JdbcAccessor &amp; AsyncJdbcAccessor. This class is thread safe.
  *
- * @since 1.4 (mostly extracted from QueryRunner)
+ * @since 1.4 (mostly extracted from JdbcAccessor)
  * <p>
  * Created by Charles Cui<lfylccxm@hotmail.com> on 2021-05-19 00:59:18
  */
@@ -70,7 +70,7 @@ public abstract class AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>StatementConfiguration</code> to configure statements when
+     * Constructor for JdbcAccessor that takes a <code>StatementConfiguration</code> to configure statements when
      * preparing them.
      *
      * @param stmtConfig The configuration to apply to statements when they are prepared.
@@ -100,7 +100,7 @@ public abstract class AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code> to use and a <code>StatementConfiguration</code>.
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code> to use and a <code>StatementConfiguration</code>.
      * <p>
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
@@ -114,7 +114,7 @@ public abstract class AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code>, a <code>StatementConfiguration</code>, and
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code>, a <code>StatementConfiguration</code>, and
      * controls the use of <code>ParameterMetaData</code>.  Methods that do not take a <code>Connection</code> parameter
      * will retrieve connections from this <code>DataSource</code>.
      *
@@ -132,7 +132,7 @@ public abstract class AbstractJdbcAccessor {
 
     /**
      * Returns the <code>DataSource</code> this runner is using.
-     * <code>QueryRunner</code> methods always call this method to get the
+     * <code>JdbcAccessor</code> methods always call this method to get the
      * <code>DataSource</code> so subclasses can provide specialized behavior.
      *
      * @return DataSource the runner is using
@@ -159,7 +159,7 @@ public abstract class AbstractJdbcAccessor {
     /**
      * Factory method that creates and initializes a
      * <code>PreparedStatement</code> object for the given SQL.
-     * <code>QueryRunner</code> methods always call this method to prepare
+     * <code>JdbcAccessor</code> methods always call this method to prepare
      * statements for them. Subclasses can override this method to provide
      * special PreparedStatement configuration if needed. This implementation
      * simply calls <code>conn.prepareStatement(sql)</code>.
@@ -186,7 +186,7 @@ public abstract class AbstractJdbcAccessor {
     /**
      * Factory method that creates and initializes a
      * <code>PreparedStatement</code> object for the given SQL.
-     * <code>QueryRunner</code> methods always call this method to prepare
+     * <code>JdbcAccessor</code> methods always call this method to prepare
      * statements for them. Subclasses can override this method to provide
      * special PreparedStatement configuration if needed. This implementation
      * simply calls <code>conn.prepareStatement(sql, returnedKeys)</code>
@@ -242,7 +242,7 @@ public abstract class AbstractJdbcAccessor {
     /**
      * Factory method that creates and initializes a
      * <code>CallableStatement</code> object for the given SQL.
-     * <code>QueryRunner</code> methods always call this method to prepare
+     * <code>JdbcAccessor</code> methods always call this method to prepare
      * callable statements for them. Subclasses can override this method to
      * provide special CallableStatement configuration if needed. This
      * implementation simply calls <code>conn.prepareCall(sql)</code>.
@@ -261,7 +261,7 @@ public abstract class AbstractJdbcAccessor {
 
     /**
      * Factory method that creates and initializes a <code>Connection</code>
-     * object. <code>QueryRunner</code> methods always call this method to
+     * object. <code>JdbcAccessor</code> methods always call this method to
      * retrieve connections from its DataSource. Subclasses can override this
      * method to provide special <code>Connection</code> configuration if
      * needed. This implementation simply calls <code>ds.getConnection()</code>.
@@ -273,7 +273,7 @@ public abstract class AbstractJdbcAccessor {
     protected Connection prepareConnection() {
         if (this.getDataSource() == null) {
             throw new SQLRuntimeException(
-                    "QueryRunner requires a DataSource to be "
+                    "JdbcAccessor requires a DataSource to be "
                             + "invoked in this way, or a Connection should be passed in");
         }
         try {
@@ -489,7 +489,7 @@ public abstract class AbstractJdbcAccessor {
      * </p>
      *
      * <pre>
-     * QueryRunner run = new QueryRunner() {
+     * JdbcAccessor run = new JdbcAccessor() {
      *     protected ResultSet wrap(ResultSet rs) {
      *         return StringTrimmedResultSet.wrap(rs);
      *     }

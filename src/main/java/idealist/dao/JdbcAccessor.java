@@ -16,14 +16,14 @@ import java.util.List;
 public class JdbcAccessor extends AbstractJdbcAccessor {
 
     /**
-     * Constructor for QueryRunner.
+     * Constructor for JdbcAccessor.
      */
     public JdbcAccessor() {
         super();
     }
 
     /**
-     * Constructor for QueryRunner that controls the use of <code>ParameterMetaData</code>.
+     * Constructor for JdbcAccessor that controls the use of <code>ParameterMetaData</code>.
      *
      * @param pmdKnownBroken Some drivers don't support {@link java.sql.ParameterMetaData#getParameterType(int) };
      *                       if <code>pmdKnownBroken</code> is set to true, we won't even try it; if false, we'll try it,
@@ -34,7 +34,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code> to use.
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code> to use.
      * <p>
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
@@ -46,7 +46,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>StatementConfiguration</code> to configure statements when
+     * Constructor for JdbcAccessor that takes a <code>StatementConfiguration</code> to configure statements when
      * preparing them.
      *
      * @param stmtConfig The configuration to apply to statements when they are prepared.
@@ -56,7 +56,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code> and controls the use of <code>ParameterMetaData</code>.
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code> and controls the use of <code>ParameterMetaData</code>.
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
      *
@@ -70,7 +70,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code> to use and a <code>StatementConfiguration</code>.
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code> to use and a <code>StatementConfiguration</code>.
      * <p>
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
@@ -83,7 +83,7 @@ public class JdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for QueryRunner that takes a <code>DataSource</code>, a <code>StatementConfiguration</code>, and
+     * Constructor for JdbcAccessor that takes a <code>DataSource</code>, a <code>StatementConfiguration</code>, and
      * controls the use of <code>ParameterMetaData</code>.  Methods that do not take a <code>Connection</code> parameter
      * will retrieve connections from this <code>DataSource</code>.
      *

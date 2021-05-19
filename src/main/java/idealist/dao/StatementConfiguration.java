@@ -1,7 +1,7 @@
 package idealist.dao;
 
 /**
- * Configuration options for a {@link java.sql.Statement} when preparing statements in <code>QueryRunner</code>.
+ * Configuration options for a {@link java.sql.Statement} when preparing statements in <code>JdbcAccessor</code>.
  * <p>
  * Created by Charles Cui<lfylccxm@hotmail.com> on 2021-05-19 01:02:21
  */

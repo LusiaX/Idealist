@@ -24,10 +24,10 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
     private final JdbcAccessor jdbcAccessor;
 
     /**
-     * Constructor for AsyncQueryRunner which uses a provided ExecutorService and underlying QueryRunner.
+     * Constructor for AsyncJdbcAccessor which uses a provided ExecutorService and underlying JdbcAccessor.
      *
      * @param executorService the {@code ExecutorService} instance used to run JDBC invocations concurrently.
-     * @param jdbcAccessor     the {@code QueryRunner} instance to use for the queries.
+     * @param jdbcAccessor     the {@code JdbcAccessor} instance to use for the queries.
      * @since DbUtils 1.5
      */
     public AsyncJdbcAccessor(ExecutorService executorService, JdbcAccessor jdbcAccessor) {
@@ -36,7 +36,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
     }
 
     /**
-     * Constructor for AsyncQueryRunner.
+     * Constructor for AsyncJdbcAccessor.
      *
      * @param executorService the {@code ExecutorService} instance used to run JDBC invocations concurrently.
      */
@@ -50,7 +50,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      *                        and if it breaks, we'll remember not to use it again.
      * @param executorService the {@code ExecutorService} instance used to run JDBC invocations concurrently.
      * @deprecated Use {@link #AsyncJdbcAccessor(ExecutorService, JdbcAccessor)} instead.
-     * Constructor for AsyncQueryRunner that controls the use of <code>ParameterMetaData</code>.
+     * Constructor for AsyncJdbcAccessor that controls the use of <code>ParameterMetaData</code>.
      */
     @Deprecated
     public AsyncJdbcAccessor(boolean pmdKnownBroken, ExecutorService executorService) {
@@ -61,7 +61,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @param ds              The <code>DataSource</code> to retrieve connections from.
      * @param executorService the {@code ExecutorService} instance used to run JDBC invocations concurrently.
      * @deprecated Use {@link #AsyncJdbcAccessor(ExecutorService, JdbcAccessor)} instead.
-     * Constructor for AsyncQueryRunner that takes a <code>DataSource</code>.
+     * Constructor for AsyncJdbcAccessor that takes a <code>DataSource</code>.
      * <p>
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
@@ -78,7 +78,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      *                        and if it breaks, we'll remember not to use it again.
      * @param executorService the {@code ExecutorService} instance used to run JDBC invocations concurrently.
      * @deprecated Use {@link #AsyncJdbcAccessor(ExecutorService, JdbcAccessor)} instead.
-     * Constructor for AsyncQueryRunner that take a <code>DataSource</code> and controls the use of <code>ParameterMetaData</code>.
+     * Constructor for AsyncJdbcAccessor that take a <code>DataSource</code> and controls the use of <code>ParameterMetaData</code>.
      * Methods that do not take a <code>Connection</code> parameter will retrieve connections from this
      * <code>DataSource</code>.
      */
