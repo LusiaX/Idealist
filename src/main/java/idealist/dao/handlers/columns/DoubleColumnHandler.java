@@ -16,6 +16,6 @@ public class DoubleColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Double.valueOf(rs.getDouble(columnIndex));
+        return rs.getDouble(columnIndex);
     }
 }

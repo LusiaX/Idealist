@@ -12,12 +12,11 @@ public class DatePropertyHandler implements PropertyHandler {
     public boolean match(Class<?> parameter, Object value) {
         if (value instanceof java.util.Date) {
             final String targetType = parameter.getName();
-            if ("java.sql.Date".equals(targetType)) {
-                return true;
-            } else if ("java.sql.Time".equals(targetType)) {
-                return true;
-            } else if ("java.sql.Timestamp".equals(targetType)) {
-                return true;
+            switch (targetType) {
+                case "java.sql.Date":
+                case "java.sql.Time":
+                case "java.sql.Timestamp":
+                    return true;
             }
         }
 
@@ -27,15 +26,15 @@ public class DatePropertyHandler implements PropertyHandler {
     @Override
     public Object apply(Class<?> parameter, Object value) {
         final String targetType = parameter.getName();
-        if ("java.sql.Date".equals(targetType)) {
-            value = new java.sql.Date(((java.util.Date) value).getTime());
-        } else if ("java.sql.Time".equals(targetType)) {
-            value = new java.sql.Time(((java.util.Date) value).getTime());
-        } else if ("java.sql.Timestamp".equals(targetType)) {
-            Timestamp tsValue = (Timestamp) value;
-            int nanos = tsValue.getNanos();
-            value = new Timestamp(tsValue.getTime());
-            ((Timestamp) value).setNanos(nanos);
+        switch (targetType) {
+            case "java.sql.Date" -> value = new java.sql.Date(((java.util.Date) value).getTime());
+            case "java.sql.Time" -> value = new java.sql.Time(((java.util.Date) value).getTime());
+            case "java.sql.Timestamp" -> {
+                Timestamp tsValue = (Timestamp) value;
+                int nanos = tsValue.getNanos();
+                value = new Timestamp(tsValue.getTime());
+                ((Timestamp) value).setNanos(nanos);
+            }
         }
 
         return value;

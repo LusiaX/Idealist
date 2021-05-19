@@ -16,6 +16,6 @@ public class LongColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Long.valueOf(rs.getLong(columnIndex));
+        return rs.getLong(columnIndex);
     }
 }

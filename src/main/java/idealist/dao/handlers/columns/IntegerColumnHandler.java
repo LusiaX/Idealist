@@ -16,6 +16,6 @@ public class IntegerColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Integer.valueOf(rs.getInt(columnIndex));
+        return rs.getInt(columnIndex);
     }
 }

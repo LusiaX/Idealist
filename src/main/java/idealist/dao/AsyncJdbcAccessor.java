@@ -242,7 +242,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(conn, sql));
+                return jdbcAccessor.update(conn, sql);
             }
 
         });
@@ -263,7 +263,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(conn, sql, param));
+                return jdbcAccessor.update(conn, sql, param);
             }
 
         });
@@ -283,7 +283,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(conn, sql, params));
+                return jdbcAccessor.update(conn, sql, params);
             }
 
         });
@@ -305,7 +305,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(sql));
+                return jdbcAccessor.update(sql);
             }
 
         });
@@ -328,7 +328,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(sql, param));
+                return jdbcAccessor.update(sql, param);
             }
 
         });
@@ -351,7 +351,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
 
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(jdbcAccessor.update(sql, params));
+                return jdbcAccessor.update(sql, params);
             }
 
         });
@@ -369,14 +369,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insert(final String sql, final ResultSetHandler<T> rsh) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insert(sql, rsh);
-            }
-
-        });
+        return executorService.submit(() -> jdbcAccessor.insert(sql, rsh));
     }
 
     /**
@@ -392,13 +385,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insert(final String sql, final ResultSetHandler<T> rsh, final Object... params) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insert(sql, rsh, params);
-            }
-        });
+        return executorService.submit(() -> jdbcAccessor.insert(sql, rsh, params));
     }
 
     /**
@@ -414,13 +401,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insert(final Connection conn, final String sql, final ResultSetHandler<T> rsh) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insert(conn, sql, rsh);
-            }
-        });
+        return executorService.submit(() -> jdbcAccessor.insert(conn, sql, rsh));
     }
 
     /**
@@ -437,13 +418,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insert(final Connection conn, final String sql, final ResultSetHandler<T> rsh, final Object... params) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insert(conn, sql, rsh, params);
-            }
-        });
+        return executorService.submit(() -> jdbcAccessor.insert(conn, sql, rsh, params));
     }
 
     /**
@@ -460,13 +435,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insertBatch(final String sql, final ResultSetHandler<T> rsh, final Object[][] params) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insertBatch(sql, rsh, params);
-            }
-        });
+        return executorService.submit(() -> jdbcAccessor.insertBatch(sql, rsh, params));
     }
 
     /**
@@ -484,13 +453,7 @@ public class AsyncJdbcAccessor extends AbstractJdbcAccessor {
      * @since 1.6
      */
     public <T> Future<T> insertBatch(final Connection conn, final String sql, final ResultSetHandler<T> rsh, final Object[][] params) throws SQLException {
-        return executorService.submit(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception {
-                return jdbcAccessor.insertBatch(conn, sql, rsh, params);
-            }
-        });
+        return executorService.submit(() -> jdbcAccessor.insertBatch(conn, sql, rsh, params));
     }
 
     /**

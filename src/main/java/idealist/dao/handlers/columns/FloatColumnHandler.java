@@ -16,6 +16,6 @@ public class FloatColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Float.valueOf(rs.getFloat(columnIndex));
+        return rs.getFloat(columnIndex);
     }
 }

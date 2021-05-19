@@ -16,6 +16,6 @@ public class BooleanColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Boolean.valueOf(rs.getBoolean(columnIndex));
+        return rs.getBoolean(columnIndex);
     }
 }

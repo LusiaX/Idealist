@@ -427,8 +427,7 @@ public abstract class AbstractJdbcAccessor {
                         + i);
             }
             boolean found = false;
-            for (int j = 0; j < descriptors.length; j++) {
-                PropertyDescriptor descriptor = descriptors[j];
+            for (PropertyDescriptor descriptor : descriptors) {
                 if (propertyName.equals(descriptor.getName())) {
                     sorted[i] = descriptor;
                     found = true;
@@ -459,7 +458,7 @@ public abstract class AbstractJdbcAccessor {
         if (causeMessage == null) {
             causeMessage = "";
         }
-        StringBuffer msg = new StringBuffer(causeMessage);
+        StringBuilder msg = new StringBuilder(causeMessage);
 
         msg.append(" Query: ");
         msg.append(sql);

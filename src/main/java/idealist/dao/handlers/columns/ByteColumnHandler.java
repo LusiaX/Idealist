@@ -16,6 +16,6 @@ public class ByteColumnHandler implements ColumnHandler {
 
     @Override
     public Object apply(ResultSet rs, int columnIndex) throws SQLException {
-        return Byte.valueOf(rs.getByte(columnIndex));
+        return rs.getByte(columnIndex);
     }
 }
